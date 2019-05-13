@@ -1,0 +1,8 @@
+CUDA_VISIBLE_DEVICES=2 python ../main.py \
+--dither_mode nodither \
+--PtSz 256 --BtSz 8 --trRatio 0.1 --tDown 8 \
+--w_idl 100 --w_gdl 100 --p_idl 1 --p_gdl 1 \
+--w_dgan 1 --w_ggan 1 --gan_loss 'GAN' \
+--LRPolicy 'constant' --LRStart 0.0002 --nEpoch 30 \
+--initModel '' \
+--saveDir 'results/g32_nodither_pt256_bt8_tr0.1/idl100_1,gdl100_1,gan_d1_g1/lr0.0002/' --checkpoint 0
