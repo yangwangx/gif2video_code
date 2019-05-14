@@ -4,5 +4,9 @@
 
 - [x] Release `GIF-Faces` and `GIF-Moments` datasets   
 - [ ] Release `CCDNet` code and model for GIF color dequantization   
+  - [x] `CCDNet-1` code  
+  - [ ] `CCDNet-1` models  
+  - [ ] `CCDNet-k` code  
+  - [ ] `CCDNet-k` models  
 - [ ] Release `GIF2Video` code and model for GIF temporal interpolation    
 - [ ] Add demo code
