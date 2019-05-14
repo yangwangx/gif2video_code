@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=1,2 python ../main.py --nogan \
+CUDA_VISIBLE_DEVICES=0,1 python ../main.py --nogan \
 --dither_mode nodither \
 --PtSz 256 --BtSz 8 --trRatio 0.1 --tDown 8 \
 --w_idl 100 --w_gdl 100 --p_idl 1 --p_gdl 1 \
