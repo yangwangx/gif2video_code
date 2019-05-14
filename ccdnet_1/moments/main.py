@@ -158,8 +158,8 @@ def evaluate(epoch, evalLD, model):
 
     tags = ['PSNR', 'PSNR_gif', 'SSIM', 'SSIM_gif']
     epL = AverageMeters(tags)
-    for i, (inputs, targets, _, _) in progressbar.progressbar(enumerate(evalLD), max_value=len(evalLD)):
-        # i, (inputs, targets, _, _) = 0, next(iter(evalLD))
+    for i, (inputs, targets, _) in progressbar.progressbar(enumerate(evalLD), max_value=len(evalLD)):
+        # i, (inputs, targets, _) = 0, next(iter(evalLD))
         _, T, _, H, W = inputs.size()
         for j in range(T):
             input, target = inputs[:, j], targets[:, j]
