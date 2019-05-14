@@ -261,6 +261,7 @@ def main_vis():
         ims_row1 = np.concatenate([ims_input, ims_target], axis=2)
         ims_row2 = np.concatenate([ims_pred,  ims_error ], axis=2)
         ims_four = np.concatenate([ims_row1,  ims_row2  ], axis=1)
+        # imageio.mimwrite('{}/{:04d}_result.mp4'.format(opts.visDir, i+1), ims_four)
         fourcc = cv2.VideoWriter_fourcc(*'DIVX')  # 'x264' doesn't work
         fps = 25.0 / opts.tDown 
         _, H_, W_, _ = ims_four.shape
