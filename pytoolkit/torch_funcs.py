@@ -128,3 +128,20 @@ def compute_G_loss(d_logits_fake, method='GAN'):
         func = FF.mse_loss
     g_loss = func(d_logits_fake, g_labels)
     return g_loss
+
+def pairwise_distances(x, y=None):
+    """ Computes the pairwise euclidean distances between rows of x and rows of y.
+    Args:
+        x: torch tensor of shape (m, d)
+        y: torch tensor of shape (n, d), or None
+    Returns:
+        dist: torch tensor of shape (m, n), or (m, m)
+    """
+    x_norm = (x**2).sum(1).view(-1, 1)
+    if y is not None:
+        y_norm = (y**2).sum(1).view(1, -1)
+    else:
+        y = x
+        y_norm = x_norm.view(1, -1)
+    dist = x_norm + y_norm - 2.0 * torch.mm(x, torch.transpose(y, 0, 1))
+    return dist
