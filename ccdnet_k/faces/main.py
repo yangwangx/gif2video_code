@@ -9,6 +9,7 @@ parser.add_argument('--pool_size', default=60, type=int, help="image pool size")
 parser.add_argument('--base_model_file', default='/mnt/disk/data/yangwang/Gif2Video/degif_c/exp,FF/CMD_nogan/results/g32_nodither_pt256_bt8_tr0.1/idl100_1,gdl100_1,nogan/ckpt/ep-0060.pt', type=str, help='')
 parser.add_argument('--base_model_key', default='model_netG', type=str, help='')
 parser.add_argument('--unroll', default=2, type=int, help='')
+parser.add_argument('--no_regif', default=True, action='store_false', dest='regif', help='regif: recompute the gif as iter input')
 # loss
 parser.add_argument('--w_idl', default=100, type=float, help='weight for image difference loss')
 parser.add_argument('--p_idl', default=1, type=float, help='p-norm for image difference loss')
@@ -25,7 +26,7 @@ opts.inputRoot = dataRoot + 'face_gif_image/expand1.5_size256_s1_g32_' + opts.di
 manual_seed(opts.seed)
 
 global base_model
-base_model = models.UNet(3, 3, ch=64)
+base_model = torchmodel.UNet_simple(3, 3, ch=64)
 base_model.load_state_dict(torch.load(opts.base_model_file)[opts.base_model_key])
 base_model.eval()
 base_model = nn.DataParallel(base_model.to(DEVICE))
@@ -43,10 +44,7 @@ def create_dataloader():
 
 def create_model():
     model = edict()
-    if opts.dither_mode == 'nodither':
-        iter_ch = 3*4
-    elif opts.dither_mode == 'dither':
-        iter_ch = 3*2
+    iter_ch = 3*4 if opts.regif else 3*2
     model.netG = torchmodel.UNet_simple(in_ch=iter_ch, out_ch=3, ch=64)
     model.netD = torchmodel.NLayerDiscriminator(in_ch=12, ndf=64, n_layers=3)
     for key in model.keys(): 
@@ -62,7 +60,7 @@ def board_vis(epoch, gif, pred, target):
     opts.board.add_image('train_batch/gif_target_pred_error', x, epoch)
 
 ################################################
-if opts.dither_mode == 'nodither':
+if opts.regif:  # recompute the gif as iterative input
     def iterative_input(fakeB, realA, colors, nColor):
         # fakeB_gif = fakeB
         B, C, H, W = fakeB.shape
@@ -78,7 +76,7 @@ if opts.dither_mode == 'nodither':
         fakeB_gif = torch.cat(fakeB_gif, dim=0)
         new_input = torch.cat([fakeB, realA, fakeB_gif, realA - fakeB_gif], dim=1)
         return new_input
-elif opts.dither_mode == 'dither':
+else:
     def iterative_input(fakeB, realA, colors, nColor):
         new_input = torch.cat([fakeB, realA], dim=1)
         return new_input
