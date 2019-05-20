@@ -5,3 +5,8 @@ ccdnet1_gan_faces_nodither_ep30.pt
 ccdnet1_gan_moments_nodither_ep30.pt
 ccdnet1_nogan_faces_dither_ep60.pt
 ccdnet1_nogan_faces_nodither_ep60.pt
+ccdnet2_gan_faces_dither_ep30.pt
+ccdnet2_gan_faces_dither_ep40.pt
+ccdnet2_gan_faces_nodither_ep30.pt
+ccdnet2_nogan_faces_dither_ep50.pt
+ccdnet2_nogan_faces_nodither_ep50.pt
