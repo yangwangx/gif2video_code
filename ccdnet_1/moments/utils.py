@@ -23,46 +23,48 @@ except NameError:
 sys.path.append(cwd + '../../')
 from pytoolkit import *
 
-parser = argparse.ArgumentParser()
-# data
-parser.add_argument('--workers', default=2, type=int, help='number of workers for dataloader')
-parser.add_argument('--BtSz', default=8, type=int, help='batch size')
-# parser.add_argument('--BtMerge', default=1, type=int, help='batch step for merged gradient update')
-parser.add_argument('--trRatio', default=1, type=float, help='ratio of training data used per epoch')
-parser.add_argument('--OneBatch', default=False, action='store_true', dest='OneBatch', help='debug with one batch')
-# model
-# loss
-# optimizer
-parser.add_argument('--noOptimizer', default=[], type=str, nargs='+', dest='noOptimizer')
-parser.add_argument('--solver', default='adam', choices=['adam','sgd'], help='which solver')
-parser.add_argument('--MM', default=0.5, type=float, help='momentum')
-parser.add_argument('--Beta', default=0.999, type=float, help='beta for adam')
-parser.add_argument('--WD', default=1e-4, type=float, help='weight decay')
-# learning rate
-parser.add_argument('--LRPolicy', default='constant', type=str, choices=['constant', 'step', 'steps', 'exponential',], help='learning rate policy')
-parser.add_argument('--gamma', default=1.0, type=float, help='decay rate for learning rate')
-parser.add_argument('--LRStart', default=0.0002, type=float, help='initial learning rate')
-parser.add_argument('--LRStep', default=10, type=int, help='steps to change learning rate')
-parser.add_argument('--LRSteps', default=[], type=int, nargs='+', dest='LRSteps', help='epochs before cutting learning rate')
-parser.add_argument('--nEpoch', default=50, type=int, help='total epochs to run')
-# init & checkpoint
-parser.add_argument('--initModel', default='', help='init model in absence of checkpoint')
-parser.add_argument('--checkpoint', default=0, type=int, help='resume from checkpoint')
-# save & display
-parser.add_argument('--saveDir', default='results/default/', help='directory to save/log experiments')
-parser.add_argument('--saveStep', default=1, type=int, help='epoch step for snapshot')
-parser.add_argument('--evalStep', default=10, type=int, help='epoch step for evaluation')
-parser.add_argument('--dispIter', default=50, type=int, help='batch step for tensorboard')
-# other mode
-parser.add_argument('--evalMode', default=False, action='store_true', dest='evalMode', help='evaluation mode')
-parser.add_argument('--valMode', default=False, action='store_true', dest='valMode', help='validation mode')
-parser.add_argument('--visMode', default=False, action='store_true', dest='visMode', help='visualization mode')
-parser.add_argument('--visDir', default='visual', type=str, help="dir to store visualization")
-parser.add_argument('--visNum', default=1000, type=int, help="number of videos to visualize")
-parser.add_argument('--applyMode', default=False, action='store_true', dest='applyMode', help='apply model to one gif')
-parser.add_argument('--applyFile', default='', type=str, help='path to gif')
-# misc
-parser.add_argument('--seed', default=1, type=int, help='random seed for torch/numpy')
+def get_base_parser():
+    parser = argparse.ArgumentParser()
+    # data
+    parser.add_argument('--workers', default=2, type=int, help='number of workers for dataloader')
+    parser.add_argument('--BtSz', default=8, type=int, help='batch size')
+    # parser.add_argument('--BtMerge', default=1, type=int, help='batch step for merged gradient update')
+    parser.add_argument('--trRatio', default=1, type=float, help='ratio of training data used per epoch')
+    parser.add_argument('--OneBatch', default=False, action='store_true', dest='OneBatch', help='debug with one batch')
+    # model
+    # loss
+    # optimizer
+    parser.add_argument('--noOptimizer', default=[], type=str, nargs='+', dest='noOptimizer')
+    parser.add_argument('--solver', default='adam', choices=['adam','sgd'], help='which solver')
+    parser.add_argument('--MM', default=0.5, type=float, help='momentum')
+    parser.add_argument('--Beta', default=0.999, type=float, help='beta for adam')
+    parser.add_argument('--WD', default=1e-4, type=float, help='weight decay')
+    # learning rate
+    parser.add_argument('--LRPolicy', default='constant', type=str, choices=['constant', 'step', 'steps', 'exponential',], help='learning rate policy')
+    parser.add_argument('--gamma', default=1.0, type=float, help='decay rate for learning rate')
+    parser.add_argument('--LRStart', default=0.0002, type=float, help='initial learning rate')
+    parser.add_argument('--LRStep', default=10, type=int, help='steps to change learning rate')
+    parser.add_argument('--LRSteps', default=[], type=int, nargs='+', dest='LRSteps', help='epochs before cutting learning rate')
+    parser.add_argument('--nEpoch', default=50, type=int, help='total epochs to run')
+    # init & checkpoint
+    parser.add_argument('--initModel', default='', help='init model in absence of checkpoint')
+    parser.add_argument('--checkpoint', default=0, type=int, help='resume from checkpoint')
+    # save & display
+    parser.add_argument('--saveDir', default='results/default/', help='directory to save/log experiments')
+    parser.add_argument('--saveStep', default=1, type=int, help='epoch step for snapshot')
+    parser.add_argument('--evalStep', default=10, type=int, help='epoch step for evaluation')
+    parser.add_argument('--dispIter', default=50, type=int, help='batch step for tensorboard')
+    # other mode
+    parser.add_argument('--evalMode', default=False, action='store_true', dest='evalMode', help='evaluation mode')
+    parser.add_argument('--valMode', default=False, action='store_true', dest='valMode', help='validation mode')
+    parser.add_argument('--visMode', default=False, action='store_true', dest='visMode', help='visualization mode')
+    parser.add_argument('--visDir', default='visual', type=str, help="dir to store visualization")
+    parser.add_argument('--visNum', default=1000, type=int, help="number of videos to visualize")
+    parser.add_argument('--applyMode', default=False, action='store_true', dest='applyMode', help='apply model to one gif')
+    parser.add_argument('--applyFile', default='', type=str, help='path to gif')
+    # misc
+    parser.add_argument('--seed', default=1, type=int, help='random seed for torch/numpy')
+    return parser
 
 kldiv_w = lambda p, m, w: (FF.kl_div((p+1e-8).log(), m, reduction='none') * w).mean() * m.size(1)
 kldiv = lambda p, m: FF.kl_div((p+1e-8).log(), m) * m.size(1)

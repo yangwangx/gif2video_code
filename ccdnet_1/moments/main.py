@@ -1,5 +1,6 @@
 from utils import *
 
+parser = get_base_parser()
 # data
 parser.add_argument('--dither_mode', default='nodither', type=str, choices=['dither','nodither'], help='dither mode of input gifs')
 parser.add_argument('--subset_train', default='train', type=str, help='which subset for training')
