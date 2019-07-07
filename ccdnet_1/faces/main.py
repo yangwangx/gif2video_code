@@ -26,7 +26,7 @@ def create_dataloader():
     trLD = DD.DataLoader(trSet, batch_size=opts.BtSz,
         sampler= DD.sampler.SubsetRandomSampler([0]*opts.BtSz) if opts.OneBatch else DD.sampler.RandomSampler(trSet),
         num_workers=opts.workers, pin_memory=True, drop_last=True)
-    evalSet = torchdata.gif_faces_test(inputRoot=opts.inputRoot, tDown=opts.tDown)
+    evalSet = torchdata.gif_faces_eval(inputRoot=opts.inputRoot, tDown=opts.tDown)
     evalLD = DD.DataLoader(evalSet, batch_size=1,
         sampler=DD.sampler.SequentialSampler(evalSet),
         num_workers=opts.workers, pin_memory=True, drop_last=False)
@@ -235,7 +235,7 @@ def main_vis():
     netG = model.netG
     netG.eval()
     print('==> create data loader')
-    visSet = torchdata.gif_faces_test(inputRoot=opts.inputRoot, tDown=opts.tDown)
+    visSet = torchdata.gif_faces_eval(inputRoot=opts.inputRoot, tDown=opts.tDown)
     for i, samples in progressbar.progressbar(enumerate(visSet), max_value=len(visSet)):
         # i, sample = 0, next(iter(visSet))
         samples = samples[:2]

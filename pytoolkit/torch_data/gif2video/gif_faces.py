@@ -6,6 +6,8 @@ from PIL import Image
 import numpy as np
 import random
 
+__all__ = ['gif_faces_train', 'gif_faces_eval']
+
 dataRoot = '/nfs/bigbrain/yangwang/Gif2Video/gif2video_data/gif_faces/'
 trainSplit = dataRoot + 'split/face_train.txt'
 validSplit = dataRoot + 'split/face_valid.txt'
@@ -64,9 +66,9 @@ class gif_faces_train(DD.Dataset):
     def __len__(self):
         return len(self.imageList)
 
-class gif_faces_test(DD.Dataset):
+class gif_faces_eval(DD.Dataset):
     def __init__(self, inputRoot=inputRoot, targetRoot=targetRoot, tDown=4):
-        super(gif_faces_test, self).__init__()
+        super(gif_faces_eval, self).__init__()
         self.inputRoot = inputRoot
         self.targetRoot = targetRoot
         self.tDown = tDown
@@ -123,7 +125,7 @@ if __name__ == '__main__':
         Image.fromarray(np.concatenate([input, target], axis=1)).show()
         print('the color palette size is {}'.format(nColor))
     if True:
-        dataset = gif_faces_test(tDown=4)
+        dataset = gif_faces_eval(tDown=4)
         print('test set is of {} videos'.format(len(dataset)))
         input, target, colors, nColor = random.choice(dataset)
         input, target = tensor2im(input[0]), tensor2im(target[0])
