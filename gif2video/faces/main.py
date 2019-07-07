@@ -10,7 +10,7 @@ parser.add_argument('--tStride', default=10, type=int, help="temporal downsampli
 parser.add_argument('--pool_size', default=60, type=int, help="image pool size")
 # model
 parser.add_argument('--color_model1_file', default='/nfs/bigfovea/yangwang/Gif2Video/degif_c/exp,FF/CMD_gan/results/g32_nodither_pt256_bt8_tr0.1/idl100_1,gdl100_1,gan_d1_g1/lr0.0002/ckpt/ep-0030.pt', type=str, help='')
-parser.add_argument('--color_model2_file', default='', type=str, help='')
+parser.add_argument('--color_model2_file', default='/nfs/bigfovea/yangwang/Gif2Video/degif_c/exp,FF,recurrent/CMD_gan/results/g32_nodither_pt256_bt8_tr0.03/idl100_1,gdl100_1,nogan/unroll1/ckpt/ep-0040.pt', type=str, help='')
 parser.add_argument('--color_model_key', default='model_netG', type=str, help='')
 parser.add_argument('--unroll', default=1, type=int, help='')
 parser.add_argument('--no_regif', default=True, action='store_false', dest='regif', help='regif: recompute the gif as iter input')
@@ -34,16 +34,17 @@ dataRoot = '/nfs/bigbrain/yangwang/Gif2Video/gif2video_data/gif_faces/'
 opts.inputRoot = dataRoot + 'face_gif_image/expand1.5_size256_s1_g32_' + opts.dither_mode
 manual_seed(opts.seed)
 
-## Define Color Model ##
 global color_model1
-global color_model2
-color_model1 = torchmodel.UNet_rgb(3, 3, ch=64)
+color_model1 = torchmodel.UNet_simple(3, 3, ch=64)
 color_model1.load_state_dict(torch.load(opts.color_model1_file)[opts.color_model_key])
 color_model1 = nn.DataParallel(color_model1.eval().to(DEVICE))
-iter_ch = 3*4 if opts.regif else 3*2
-color_model2 = torchmodel.UNet_rgb(iter_ch, 3, ch=64)
-color_model2.load_state_dict(torch.load(opts.color_model2_file)[opts.color_model_key])
-color_model2 = nn.DataParallel(color_model2.eval().to(DEVICE))
+
+if opts.unroll > 0:
+    global color_model2
+    iter_ch = 3*4 if opts.regif else 3*2
+    color_model2 = torchmodel.UNet_simple(iter_ch, 3, ch=64)
+    color_model2.load_state_dict(torch.load(opts.color_model2_file)[opts.color_model_key])
+    color_model2 = nn.DataParallel(color_model2.eval().to(DEVICE))
 
 if opts.regif:  # recompute the gif as iterative input
     def iterative_input(fakeB, realA, colors, nColor=opts.nColor):
@@ -65,7 +66,6 @@ else:
     def iterative_input(fakeB, realA, colors, nColor=opts.nColor):
         new_input = torch.cat([fakeB, realA], dim=1)
         return new_input
-## End: Define Color Model ##
 
 def create_dataloader():
     trSet = torchdata.gif_faces_ct_train(inputRoot=opts.inputRoot, tCrop=opts.tCrop, sCrop=opts.sCrop)

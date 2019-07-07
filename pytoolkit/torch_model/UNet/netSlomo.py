@@ -1,3 +1,7 @@
+import torch
+import torch.nn as nn
+import torch.nn.functional as FF
+import numpy as np
 from .UNet_flow import UNet_flow
 
 __all__ = ['backwarp', 'netSlomo']
@@ -25,12 +29,12 @@ def final_image_interp(I0, I1, t, Ft0, Ft1, Vt0):
     It = (1-t) * Vt0 * backwarp(I0, Ft0) + t * (1-Vt0) * backwarp(I1, Ft1)
     return It.div( (1-t) * Vt0 + t * (1-Vt0) + 1e-8 )
 
-class netSlomo(nn.Module):
+class netSlomo(torch.nn.Module):
     def __init__(self, maxFlow=30):
         super(netSlomo, self).__init__()
         self.maxFlow = maxFlow
-        self.netA = torchmodel.UNet_flow(6, 2, ch=32)
-        self.netB = torchmodel.UNet_flow(16, 5, ch=32)
+        self.netA = UNet_flow(6, 2, ch=32)
+        self.netB = UNet_flow(16, 5, ch=32)
 
     def forward_A(self, gif0, gif1):
         # enhance color, estimate flow
