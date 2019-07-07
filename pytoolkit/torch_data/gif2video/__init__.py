@@ -1,2 +1,6 @@
-from .gif_faces import gif_faces_train, gif_faces_test
-from .gif_moments import gif_moments_train, gif_moments_eval 
+from .gif_faces import *
+from .gif_moments import * 
+from .gif_faces_ct import *
+from .gif_moments_ct import *
+from .gif_faces_DithRec import *
+from .gif_moments_DithRec import *
