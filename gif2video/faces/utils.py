@@ -29,31 +29,31 @@ def get_base_parser():
     parser.add_argument('--workers', default=2, type=int, help='number of workers for dataloader')
     parser.add_argument('--BtSz', default=8, type=int, help='batch size')
     # parser.add_argument('--BtMerge', default=1, type=int, help='batch step for merged gradient update')
-    parser.add_argument('--trRatio', default=0.1, type=float, help='ratio of training data used per epoch')
+    parser.add_argument('--trRatio', default=1, type=float, help='ratio of training data used per epoch')
     parser.add_argument('--OneBatch', default=False, action='store_true', dest='OneBatch', help='debug with one batch')
     # model
     # loss
     # optimizer
     parser.add_argument('--noOptimizer', default=[], type=str, nargs='+', dest='noOptimizer')
     parser.add_argument('--solver', default='adam', choices=['adam','sgd'], help='which solver')
-    parser.add_argument('--MM', default=0.5, type=float, help='momentum')
+    parser.add_argument('--MM', default=0.9, type=float, help='momentum')
     parser.add_argument('--Beta', default=0.999, type=float, help='beta for adam')
     parser.add_argument('--WD', default=1e-4, type=float, help='weight decay')
     # learning rate
     parser.add_argument('--LRPolicy', default='constant', type=str, choices=['constant', 'step', 'steps', 'exponential',], help='learning rate policy')
-    parser.add_argument('--gamma', default=1.0, type=float, help='decay rate for learning rate')
-    parser.add_argument('--LRStart', default=0.0002, type=float, help='initial learning rate')
-    parser.add_argument('--LRStep', default=10, type=int, help='steps to change learning rate')
+    parser.add_argument('--gamma', default=0.1, type=float, help='decay rate for learning rate')
+    parser.add_argument('--LRStart', default=0.0001, type=float, help='initial learning rate')
+    parser.add_argument('--LRStep', default=100, type=int, help='steps to change learning rate')
     parser.add_argument('--LRSteps', default=[], type=int, nargs='+', dest='LRSteps', help='epochs before cutting learning rate')
-    parser.add_argument('--nEpoch', default=50, type=int, help='total epochs to run')
+    parser.add_argument('--nEpoch', default=500, type=int, help='total epochs to run')
     # init & checkpoint
     parser.add_argument('--initModel', default='', help='init model in absence of checkpoint')
     parser.add_argument('--checkpoint', default=0, type=int, help='resume from checkpoint')
     # save & display
     parser.add_argument('--saveDir', default='results/default/', help='directory to save/log experiments')
-    parser.add_argument('--saveStep', default=1, type=int, help='epoch step for snapshot')
-    parser.add_argument('--evalStep', default=10, type=int, help='epoch step for evaluation')
-    parser.add_argument('--dispIter', default=50, type=int, help='batch step for tensorboard')
+    parser.add_argument('--saveStep', default=10, type=int, help='epoch step for snapshot')
+    parser.add_argument('--evalStep', default=50, type=int, help='epoch step for evaluation')
+    parser.add_argument('--dispIter', default=20, type=int, help='batch step for tensorboard')
     # other mode
     parser.add_argument('--evalMode', default=False, action='store_true', dest='evalMode', help='evaluation mode')
     parser.add_argument('--valMode', default=False, action='store_true', dest='valMode', help='validation mode')
