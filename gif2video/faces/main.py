@@ -9,11 +9,11 @@ parser.add_argument('--sCrop', default=256, type=int, help='spatial patch size')
 parser.add_argument('--tStride', default=10, type=int, help="temporal downsampling")
 parser.add_argument('--pool_size', default=60, type=int, help="image pool size")
 # model
-parser.add_argument('--color_model1_file', default='/nfs/bigfovea/yangwang/Gif2Video/degif_c/exp,FF/CMD_gan/results/g32_nodither_pt256_bt8_tr0.1/idl100_1,gdl100_1,gan_d1_g1/lr0.0002/ckpt/ep-0030.pt', type=str, help='')
-parser.add_argument('--color_model2_file', default='/nfs/bigfovea/yangwang/Gif2Video/degif_c/exp,FF,recurrent/CMD_gan/results/g32_nodither_pt256_bt8_tr0.03/idl100_1,gdl100_1,nogan/unroll1/ckpt/ep-0040.pt', type=str, help='')
+parser.add_argument('--color_model1_file', default='pretrained/ccdnet1_gan_faces_nodither_ep30.pt', type=str, help='')
 parser.add_argument('--color_model_key', default='model_netG', type=str, help='')
-parser.add_argument('--unroll', default=1, type=int, help='')
+parser.add_argument('--unroll', default=0, type=int, help='')
 parser.add_argument('--no_regif', default=True, action='store_false', dest='regif', help='regif: recompute the gif as iter input')
+parser.add_argument('--color_model2_file', default='', type=str, help='')
 parser.add_argument('--maxFlow', default=30, type=float, help='maximum flow value, use for rescaling')
 # loss
 parser.add_argument('--w_idl', default=0.5, type=float, help='weight for image difference loss')
@@ -376,7 +376,7 @@ def main_vis():
     netG = model.netG
     netG.eval()
     print('==> create data loader')
-    visSet = datasets.gif_faces_ct_eval(inputRoot=opts.inputRoot, tStride=opts.tCrop, tCrop=opts.tCrop)
+    visSet = torchdata.gif_faces_ct_eval(inputRoot=opts.inputRoot, tStride=opts.tCrop, tCrop=opts.tCrop)
     for i, (gif0s, gif1s, targets, color0s, color1s) in progressbar.progressbar(enumerate(visSet), max_value=min(opts.visNum, len(visSet))):
         # i, (gif0s, gif1s, targets) = 0, next(iter(visSet))
         # gif0s, gif1s: T, C, H, W
