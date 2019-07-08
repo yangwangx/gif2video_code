@@ -10,6 +10,6 @@ ccdnet2_gan_faces_dither_ep40.pt
 ccdnet2_gan_faces_nodither_ep30.pt
 ccdnet2_nogan_faces_dither_ep50.pt
 ccdnet2_nogan_faces_nodither_ep50.pt
+gif2video_t4.ccdnet1_gan_moments_nodither_ep30.pt
 gif2video_t8.ccdnet1_gan_faces_nodither_ep30.pt
-gif2video_t8.ccdnet1_gan_moments_nodither_ep30.pt
 gif2video_t8.seq.ccdnet1_gan_faces_nodither_ep30.pt
