@@ -14,6 +14,7 @@ parser.add_argument('--color_model_key', default='model_netG', type=str, help=''
 parser.add_argument('--unroll', default=0, type=int, help='')
 parser.add_argument('--no_regif', default=True, action='store_false', dest='regif', help='regif: recompute the gif as iter input')
 parser.add_argument('--color_model2_file', default='', type=str, help='')
+parser.add_argument('--sequential', default=False, action='store_true', dest='sequential', help='process color:flow sequentially')
 parser.add_argument('--maxFlow', default=30, type=float, help='maximum flow value, use for rescaling')
 # loss
 parser.add_argument('--w_idl', default=0.5, type=float, help='weight for image difference loss')
@@ -145,7 +146,10 @@ def train(epoch, trLD, model, optimizer, fakeABPool):
                 new_input = iterative_input(I1, gif1, color1)
                 I1 = (I1 + color_model2(new_input)).tanh()
             ################################################
-        Its, F01, F10, Ft1s, Ft0s, Vt0s = model.netG(gif0, gif1, I0, I1, ts)
+        if not opts.sequential: 
+            Its, F01, F10, Ft1s, Ft0s, Vt0s = model.netG(gif0, gif1, I0, I1, ts)
+        else:
+            Its, F01, F10, Ft1s, Ft0s, Vt0s = model.netG(I0, I1, I0, I1, ts)
         imgs = torch.cat((I0.unsqueeze(dim=1), Its, I1.unsqueeze(dim=1)), dim=1)
         D_input = lambda A, B: torch.cat((A, B, pad_tl(diff_xy(B))), dim=1)
         realAB = D_input(gif.view(B*L, -1, H, W), target.view(B*L, -1, H, W))
@@ -232,7 +236,10 @@ def train_nogan(epoch, trLD, model, optimizer):
                 new_input = iterative_input(I1, gif1, color1)
                 I1 = (I1 + color_model2(new_input)).tanh()
             ################################################
-        Its, F01, F10, Ft1s, Ft0s, Vt0s = model.netG(gif0, gif1, I0, I1, ts)
+        if not opts.sequential:
+            Its, F01, F10, Ft1s, Ft0s, Vt0s = model.netG(gif0, gif1, I0, I1, ts)
+        else:
+            Its, F01, F10, Ft1s, Ft0s, Vt0s = model.netG(I0, I1, I0, I1, ts)
         imgs = torch.cat((I0.unsqueeze(dim=1), Its, I1.unsqueeze(dim=1)), dim=1)
 
         # Update G network
@@ -300,7 +307,10 @@ def evaluate(epoch, evalLD, model):
                     new_input = iterative_input(I1, gif1, color1)
                     I1 = (I1 + color_model2(new_input)).tanh()
                 ################################################
-                Its, F01, F10, Ft1s, Ft0s, Vt0s = model.netG(gif0, gif1, I0, I1, ts)
+                if not opts.sequential:
+                    Its, F01, F10, Ft1s, Ft0s, Vt0s = model.netG(gif0, gif1, I0, I1, ts)
+                else:
+                    Its, F01, F10, Ft1s, Ft0s, Vt0s = model.netG(I0, I1, I0, I1, ts)
                 pred = torch.cat((I0.unsqueeze(dim=1), Its, I1.unsqueeze(dim=1)), dim=1)
                 pred_gif = torch.cat(list((gif0 if t<=0.5 else gif1).unsqueeze(1) for t in np.linspace(0, 1, L).tolist()), dim=1)
             comp_psnr = lambda x, y: rmse2psnr((x - y).abs().pow(2).mean().pow(0.5).item(), maxVal=2.0)
@@ -400,7 +410,10 @@ def main_vis():
                     new_input = iterative_input(I1, gif1, color1)
                     I1 = (I1 + color_model2(new_input)).tanh()
                 ################################################
-                Its, _, _, _, _, _ = model.netG(gif0, gif1, I0, I1, ts)
+                if not opts.sequential:
+                    Its, _, _, _, _, _ = model.netG(gif0, gif1, I0, I1, ts)
+                else:
+                    Its, _, _, _, _, _ = model.netG(I0, I1, I0, I1, ts)
             pred = torch.cat((I0.unsqueeze(dim=1), Its, I1.unsqueeze(dim=1)), dim=1)
             # pred_gif = torch.cat(list((gif0 if t<=0.5 else gif1).unsqueeze(1) for t in np.linspace(0, 1, L).tolist()), dim=1)
             pred_gif = torch.cat(list((gif0 if t<0.999 else gif1).unsqueeze(1) for t in np.linspace(0, 1, L).tolist()), dim=1)
@@ -457,7 +470,10 @@ def main_apply():
     #             new_input = iterative_input(I1, gif1, color1)
     #             I1 = (I1 + color_model2(new_input)).tanh()
     #         ################################################
-    #         Its, _, _, _, _, _ = model.netG(gif0, gif1, I0, I1, ts)
+    #         if not opts.sequential:
+    #             Its, _, _, _, _, _ = model.netG(gif0, gif1, I0, I1, ts)
+    #         else:
+    #             Its, _, _, _, _, _ = model.netG(I0, I1, I0, I1, ts)
     #     pred = torch.cat((I0.unsqueeze(dim=1), Its, I1.unsqueeze(dim=1)), dim=1)
     #     pred_gif = torch.cat(list((gif0 if t<=0.5 else gif1).unsqueeze(1) for t in np.linspace(0, 1, opts.applyT+1).tolist()), dim=1)
     #     #pred_gif = torch.cat(list((gif0 if t<0.999 else gif1).unsqueeze(1) for t in np.linspace(0, 1, opts.applyT+1).tolist()), dim=1)
